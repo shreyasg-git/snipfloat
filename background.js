@@ -1,43 +1,26 @@
-async function takeScreenshot(tab) {
+// background.js
+async function captureFullTab(tab) {
   try {
-    // First, inject the content script if it hasn't been injected
-    await chrome.scripting
-      .executeScript({
-        target: { tabId: tab.id },
-        files: ["content.js"],
-      })
-      .catch(() => {
-        // Script might already be injected, continue
-      });
-
-    // Take the screenshot
     const imageData = await chrome.tabs.captureVisibleTab(null, {
       format: "png",
+      quality: 100,
     });
-
-    // Try to send the message to the content script
-    try {
-      await chrome.tabs.sendMessage(tab.id, {
-        type: "DISPLAY_SCREENSHOT",
-        imageData: imageData,
-      });
-    } catch (error) {
-      // If sending failed, inject and try again
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ["content.js"],
-      });
-      await chrome.tabs.sendMessage(tab.id, {
-        type: "DISPLAY_SCREENSHOT",
-        imageData: imageData,
-      });
-    }
+    return imageData;
   } catch (error) {
-    console.error("Screenshot error:", error);
+    console.error("Screenshot capture error:", error);
+    throw error;
   }
 }
 
-// Setup context menu
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.msg === "capture_tab") {
+    captureFullTab(sender.tab).then((imageData) => {
+      sendResponse({ imgSrc: imageData });
+    });
+    return true; // Keep the message channel open for async response
+  }
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "takeScreenshot",
@@ -46,20 +29,14 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "takeScreenshot") {
-    takeScreenshot(tab);
+    chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
   }
 });
 
-// Handle keyboard shortcut
-chrome.commands.onCommand.addListener((command) => {
+chrome.commands.onCommand.addListener((command, tab) => {
   if (command === "take-screenshot") {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        takeScreenshot(tabs[0]);
-      }
-    });
+    chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
   }
 });
