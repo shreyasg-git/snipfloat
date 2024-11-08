@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Screenshot Floater",
+  "name": "SnipFloat",
   "version": "1.0",
   "permissions": ["activeTab", "tabs", "contextMenus", "storage", "scripting"],
   "host_permissions": ["<all_urls>"],
