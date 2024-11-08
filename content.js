@@ -1,28 +1,13 @@
 // content.js
 let isSelecting = false;
 let startX, startY;
-let selectionBox = null;
+
+let fullImg = null;
 let overlay = null;
+let cropBox = null;
 
 function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-function initializeSelection() {
-  overlay = document.createElement("div");
-  overlay.className = "screenshot-overlay";
-
-  selectionBox = document.createElement("div");
-  selectionBox.className = "selection-box";
-
-  document.body.appendChild(overlay);
-  document.body.appendChild(selectionBox);
-
-  overlay.addEventListener("mousedown", startSelection);
-  overlay.addEventListener("mousemove", updateSelection);
-  overlay.addEventListener("mouseup", endSelection);
-
-  isSelecting = true;
 }
 
 function startSelection(e) {
@@ -37,7 +22,7 @@ function startSelection(e) {
 }
 
 function updateSelection(e) {
-  e.preventDefault();
+  // e.preventDefault();
 
   console.log("MOUSE MOVE");
 
@@ -63,20 +48,15 @@ async function endSelection(e) {
   await captureSelectedArea(rect);
 
   // Clean up
-  document.querySelector(".screenshot-overlay").remove();
-  selectionBox.remove();
-  isSelecting = false;
+  cleanupTempEffects();
+  cleanupMain();
 }
 
 async function captureSelectedArea(rect) {
   try {
-    overlay.remove();
-    selectionBox.remove();
-    await delay(1000);
-    const response = await chrome.runtime.sendMessage({ msg: "capture_tab" });
-
     const image = new Image();
-    image.src = response.imgSrc;
+    console.log(fullImg);
+    image.src = fullImg.src;
 
     image.onload = function () {
       const canvas = document.createElement("canvas");
@@ -118,6 +98,7 @@ function displayScreenshot(imageData) {
   const img = document.createElement("img");
   img.src = imageData;
   img.className = "screenshot-image";
+  img.classList.add("ss-img-hover");
 
   // Make container draggable
   container.draggable = true;
@@ -132,8 +113,11 @@ function displayScreenshot(imageData) {
   container.addEventListener("mousedown", dragStart);
   document.addEventListener("mousemove", drag);
   document.addEventListener("mouseup", dragEnd);
+  container.addEventListener("mouseup", dragEnd);
 
   function dragStart(e) {
+    e.preventDefault();
+    img.classList.remove("ss-img-hover");
     if (e.target === closeButton) return;
     initialX = e.clientX - xOffset;
     initialY = e.clientY - yOffset;
@@ -144,7 +128,6 @@ function displayScreenshot(imageData) {
 
   function drag(e) {
     if (isDragging) {
-      e.preventDefault();
       currentX = e.clientX - initialX;
       currentY = e.clientY - initialY;
       xOffset = currentX;
@@ -154,10 +137,11 @@ function displayScreenshot(imageData) {
     }
   }
 
-  function dragEnd() {
+  function dragEnd(e) {
     initialX = currentX;
     initialY = currentY;
     isDragging = false;
+    img.classList.add("ss-img-hover");
   }
 
   container.appendChild(closeButton);
@@ -165,10 +149,61 @@ function displayScreenshot(imageData) {
   document.body.appendChild(container);
 }
 
+function cleanupMain() {
+  overlay.remove();
+  fullImg.remove();
+  selectionBox.remove();
+  isSelecting = false;
+}
+
+/** 3 things - actual image, an overlay with a tint, and then finally the actual cropping rect  */
+function overlayAndCropInject(imgData) {
+  fullImg = document.createElement("img");
+  fullImg.src = imgData;
+  fullImg.className = "full-img";
+
+  // console.log(fullImg);
+
+  overlay = document.createElement("div");
+  overlay.className = "screenshot-overlay";
+
+  overlay.style.userSelect = "none";
+  overlay.draggable = "false";
+
+  selectionBox = document.createElement("div");
+  selectionBox.className = "selection-box";
+
+  overlay.addEventListener("mousedown", startSelection);
+  overlay.addEventListener("mousemove", updateSelection);
+  overlay.addEventListener("mouseup", endSelection);
+  selectionBox.addEventListener("mouseup", endSelection);
+
+  document.body.parentNode.appendChild(fullImg);
+  document.body.parentNode.appendChild(overlay);
+  document.body.parentNode.appendChild(selectionBox);
+
+  isSelecting = true;
+
+  // ! always remember to clean this up
+  applyTempEffects();
+}
+
+function applyTempEffects() {
+  document.body.parentNode.style.overflow = "hidden";
+}
+
+function cleanupTempEffects() {
+  document.body.parentNode.style.overflow = "visible";
+}
+
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // console.log("CONTENT :: MSG FROM WORKER", message.data);
+
   if (message.type === "START_SELECTION" && !isSelecting) {
-    initializeSelection();
+    // console.log("CONTENT :: MSG FROM WORKER :: START_SELECTION", message.data);
+
+    overlayAndCropInject(message.data);
   }
-  return true;
+  // return true;
 });

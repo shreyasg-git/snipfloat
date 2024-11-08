@@ -1,3 +1,15 @@
+.full-img {
+  background-color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background: rgba(0, 0, 0, 0.2); */
+  cursor: crosshair;
+  z-index: 9999;
+}
+
 .screenshot-overlay {
   position: fixed;
   top: 0;
@@ -6,7 +18,7 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
   cursor: crosshair;
-  z-index: 999999;
+  z-index: 99999;
 }
 
 .selection-box {
@@ -22,24 +34,34 @@
   top: 20px;
   right: 20px;
   z-index: 10000;
-  background: white;
-  padding: 10px;
+  /* padding: 5px; */
   border-radius: 8px;
+
+  outline-width: 2px;
+  outline-color: invert;
+  outline-style: solid;
+
+  background-color: white;
+
+  /* -webkit-backdrop-filter: invert(100%); */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   cursor: move;
-  max-width: 350px;
+
+  /* max-width: 350px; */
   user-select: none;
 }
 
-.screenshot-container:hover {
-  max-width: unset;
-  width: 100vh;
-}
-
 .screenshot-image {
-  max-width: 100%;
   display: block;
   border-radius: 4px;
+}
+
+.ss-img-hover {
+  width: 100%;
+}
+
+.ss-img-hover:hover {
+  width: 90vh;
 }
 
 .screenshot-close {
