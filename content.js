@@ -205,5 +205,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     overlayAndCropInject(message.data);
   }
+
+  if (message.type === "DIRECT_FLOAT" && !isSelecting) {
+    displayScreenshot(message.data);
+  }
   // return true;
 });
