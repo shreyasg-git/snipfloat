@@ -2,6 +2,8 @@
 
 Take and float screenshots for easy reference while browsing.
 
+> ⚠️ **Currently broken due to recent Chrome updates** - Working on a fix
+
 ## What it does
 
 Capture any part of your screen and keep it floating on top of your browser window. Perfect for referencing information, comparing content, or keeping important details visible while working.
