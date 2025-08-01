@@ -1,23 +1,33 @@
-# snipfloat
-lets you take and float screenshots - to reference them later
+# SnipFloat 📸
 
-2024-11-04 17:11:01
+Take and float screenshots for easy reference while browsing.
 
-[DONE] currently wokring on cropping functionality. the current implementation is not that smooth.
+## What it does
 
-[DONE] also the selection and overalry div appears in the screenshot.
-this is not the desired approach
+Capture any part of your screen and keep it floating on top of your browser window. Perfect for referencing information, comparing content, or keeping important details visible while working.
 
-[DONE] the cleaner approach - 
-take ss before showing overlay, and that ss ke upar se we will crop. not the actual tab. that way it also gives us a freezing effect, coz currently the user can scroll while scrolling is active.
+## Features
 
-2024-11-09 03:35:08
-image-hover = this goes out of screen if it is on the edge already
+- **Screenshot capture** with smooth cropping
+- **Floating windows** that stay on top
+- **Multiple snips** - float as many as you need
+- **Smart positioning** - handles screen edges automatically
+- **Resize options** - thumbnail, medium, original size
+- **Right-click integration** - float existing images
+- **Controlled hover** - enlarge with Ctrl key
 
-allow multiple snips to be floating
+## Recent Updates
 
-[DONE] existing image right-click = to floating
+**November 2024**
+- ✅ Fixed cropping functionality for smoother selection
+- ✅ Removed overlay artifacts from screenshots
+- ✅ Added freeze effect during capture
+- ✅ Improved right-click support for existing images
+- 🔧 Enhanced edge detection for floating windows
+- 🔧 Better resize controls and viewing options
 
-enlarge-on-hover - can be made better by requiring to press Ctrl. current is out-of-controlish
+## Coming Soon
 
-needs resize option - initial can be kept in many options - oroginal size, small thumbanail, medium thumbnail &&& and then give expanded wale options too - original size, fit screen, etc etc
+- Multiple resize modes (thumbnail → medium → original)
+- Fit-to-screen viewing option
+- Improved hover controls
